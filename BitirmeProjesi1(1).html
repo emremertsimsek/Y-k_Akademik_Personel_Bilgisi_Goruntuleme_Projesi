@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Akademik Yayın Filtreleme</title>
+    <script>
+        // JSON verisini doğrudan JavaScript değişkenine gömüyoruz
+        let universityData = [
+            {
+                "ad_soyad": "ABDULLAH AYDIN",
+                "bolum": "Fizik",
+                "kitaplar": [
+                    { "kitap_adi": "Nükleer Fizik", "basim_yili": "2018" },
+                    { "kitap_adi": "Nükleer Enerji ve Uygulamaları", "basim_yili": "2015" },
+                    { "kitap_adi": "Radyasyon ve Radyasyondan Korunma", "basim_yili": "2013" },
+                    { "kitap_adi": "Nükleer Fizik Cilt 1", "basim_yili": "2001" },
+                    { "kitap_adi": "Nükleer Fizik Cilt 2", "basim_yili": "2002" }
+                ],
+                "tezler": [
+                    { "tez_adi": "Nükleer Seviye Yoğunluk Parametreleri", "yil": "2016" },
+                    { "tez_adi": "Astrofiziksel S-Faktör Formülleri", "yil": "2016" }
+                ]
+            },
+            { "ad_soyad": "MEHMET YILMAZ", "bolum": "Fizik", "kitaplar": [{ "kitap_adi": "Kuantum Mekaniği", "basim_yili": "2019" }], "tezler": [{ "tez_adi": "Kuantum Alan Teorisi", "yil": "2018" }] },
+            { "ad_soyad": "AYŞE KAPLAN", "bolum": "Fizik", "kitaplar": [{ "kitap_adi": "Katıhal Fiziği", "basim_yili": "2021" }], "tezler": [{ "tez_adi": "Yarıiletken Fiziği", "yil": "2020" }] },
+            { "ad_soyad": "ABDUSSAMED YEŞİLDAĞ", "bolum": "Dünya Dilleri ve Edebiyatları", "kitaplar": [{ "kitap_adi": "Arap Dili ve Edebiyatı", "basim_yili": "2024" }], "tezler": [{ "tez_adi": "Filistin Sorunu", "yil": "2024" }] },
+            { "ad_soyad": "AHMET KAYA", "bolum": "Bilgisayar Mühendisliği", "kitaplar": [{ "kitap_adi": "Makine Öğrenmesi Temelleri", "basim_yili": "2021" }], "tezler": [{ "tez_adi": "Derin Öğrenme Algoritmaları", "yil": "2020" }] },
+            { "ad_soyad": "MEHMET DEMİR", "bolum": "Tıp", "kitaplar": [{ "kitap_adi": "Genetik Hastalıklar", "basim_yili": "2019" }], "tezler": [{ "tez_adi": "Kanser Tedavileri", "yil": "2017" }] },
+            { "ad_soyad": "ZEYNEP YILMAZ", "bolum": "Kimya", "kitaplar": [{ "kitap_adi": "Organik Kimya", "basim_yili": "2020" }], "tezler": [{ "tez_adi": "Polimer Kimyası Çalışmaları", "yil": "2018" }] },
+            { "ad_soyad": "ALİ OĞUZ", "bolum": "Elektrik-Elektronik Mühendisliği", "kitaplar": [{ "kitap_adi": "Yüksek Gerilim Sistemleri", "basim_yili": "2022" }], "tezler": [{ "tez_adi": "Güneş Enerjisi Üzerine Araştırmalar", "yil": "2021" }] },
+            { "ad_soyad": "FATMA ÇELİK", "bolum": "Psikoloji", "kitaplar": [{ "kitap_adi": "Klinik Psikoloji", "basim_yili": "2016" }], "tezler": [{ "tez_adi": "Bilişsel Davranış Terapisi", "yil": "2014" }] }
+        ];
+
+        function updateDepartments() {
+            const departmentSelect = document.getElementById("bolum");
+            departmentSelect.innerHTML = '<option value="">Seçiniz</option>';
+            
+            let departments = new Set(universityData.map(p => p.bolum));
+            departments.forEach(department => {
+                const option = document.createElement("option");
+                option.value = department;
+                option.textContent = department;
+                departmentSelect.appendChild(option);
+            });
+        }
+
+        function updatePersonnel() {
+            const department = document.getElementById("bolum").value;
+            const personnelSelect = document.getElementById("personel");
+            personnelSelect.innerHTML = '<option value="">Seçiniz</option>';
+            
+            let personnel = universityData.filter(p => p.bolum === department).map(p => p.ad_soyad);
+            personnel.forEach(person => {
+                const option = document.createElement("option");
+                option.value = person;
+                option.textContent = person;
+                personnelSelect.appendChild(option);
+            });
+        }
+
+        function filterResults() {
+            const personel = document.getElementById("personel").value;
+            const tur = document.getElementById("tur").value;
+            const startYear = parseInt(document.getElementById("baslangic_yili").value) || 0;
+            const endYear = parseInt(document.getElementById("bitis_yili").value) || 9999;
+            
+            const results = [];
+            let selectedPerson = universityData.find(p => p.ad_soyad === personel);
+            
+            if (selectedPerson) {
+                let publications = tur === "kitap" ? selectedPerson.kitaplar || [] : selectedPerson.tezler || [];
+                publications.forEach(pub => {
+                    const pubYear = parseInt(pub.basim_yili || pub.yil);
+                    if (pubYear >= startYear && pubYear <= endYear) {
+                        results.push(`${pub.kitap_adi || pub.tez_adi} (${pubYear})`);
+                    }
+                });
+            }
+
+            const resultContainer = document.getElementById("results");
+            resultContainer.innerHTML = results.length > 0 ? results.map(res => `<li>${res}</li>`).join('') : "<p>Filtrelere uygun sonuç bulunamadı.</p>";
+        }
+
+        document.addEventListener("DOMContentLoaded", updateDepartments);
+    </script>
+</head>
+<body>
+    <div class="filter-section">
+        <h2>Filtrele</h2>
+        <label for="bolum">Bölüm:</label>
+        <select id="bolum" onchange="updatePersonnel()"></select>
+
+        <label for="personel">Akademik Personel:</label>
+        <select id="personel"></select>
+
+        <label for="tur">Tür:</label>
+        <select id="tur">
+            <option value="kitap">Kitap</option>
+            <option value="tez">Tez</option>
+        </select>
+
+        <label for="baslangic_yili">Başlangıç Yılı:</label>
+        <input type="number" id="baslangic_yili">
+
+        <label for="bitis_yili">Bitiş Yılı:</label>
+        <input type="number" id="bitis_yili">
+
+        <button onclick="filterResults()">Filtrele</button>
+    </div>
+
+    <div class="results-section">
+        <h2>Sonuçlar</h2>
+        <ul id="results"></ul>
+    </div>
+</body>
+</html>
